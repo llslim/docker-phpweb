@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+   5.x:
+#     depends_on:
+#       - db
+     image: llslim/docker-apache-php:5.x
+     volumes:
+       - ../../workshop:/var/www/html
+       - ../../archive:/var/www/archive
+       - ./conf/apache/sites-available:/etc/apache2/sites-available
+       # - ./conf/msmtp/msmtprc:/etc/msmtprc
+       #- ./conf/php/default.ini:/usr/local/etc/php/conf.d/default.ini
+      # - ./conf/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+     ports:
+       - 32768:80
+       #- 9000:9000
+     restart: always
+     environment:
+       XDEBUG_CONFIG: "idekey=xdebug.Atom remote_host=192.168.1.135"
+
+networks:
+  default:
+    external:
+      name: lamp_default
+# volumes:
+#    mail_sbin:

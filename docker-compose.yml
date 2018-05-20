@@ -4,7 +4,7 @@ services:
    5.x:
 #     depends_on:
 #       - db
-     image: llslim/docker-apache-php:5.x
+     image: llslim/docker-apache-php:latest
      volumes:
        - ../../workshop:/var/www/html
        - ../../archive:/var/www/archive

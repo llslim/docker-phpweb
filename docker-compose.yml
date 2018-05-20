@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-   5.x:
+   latest:
 #     depends_on:
 #       - db
      image: llslim/docker-apache-php:latest

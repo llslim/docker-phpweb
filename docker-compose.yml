@@ -1,27 +1,56 @@
 version: '3'
 
 services:
-   legacy:
-#     depends_on:
-#       - db
-     image: llslim/docker-apache-php:legacy
-     volumes:
-       - ../../workshop:/var/www/html
-       - ../../archive:/var/www/archive
-       - ./conf/apache/sites-available:/etc/apache2/sites-available
-       # - ./conf/msmtp/msmtprc:/etc/msmtprc
-       #- ./conf/php/default.ini:/usr/local/etc/php/conf.d/default.ini
-      # - ./conf/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
-     ports:
-       - 32768:80
-       #- 9000:9000
-     restart: always
-     environment:
-       XDEBUG_CONFIG: "idekey=xdebug.Atom remote_host=192.168.1.135"
+  web:
+    image: llslim/docker-apache:local
+    ports:
+      - "80:80"
+      - "443:443"
+      - "3000:3000"
+    volumes:
+      - ../../workshop:/var/www/html
+      - ../../archive:/var/www/archive
+      # - ./conf/devcerts/dockerapachephp.crt:/etc/ssl/certs/dockerapachephp.crt
+      # - ./conf/devcerts/dockerapachephp.key:/etc/ssl/private/dockerapachephp.key
+      - ./conf/apache/sites-available:/etc/apache2/sites-available
+    links:
+      - php
+    
+  php:
+    image: llslim/docker-phpfpm:local
+    ports:
+      - "9005:9005"
+    volumes:
+      - ../../workshop:/var/www/html
+  db:
+    image: mysql:5.7
+    ports:
+        - 3306:3306
+    volumes:
+      - ./conf/mysql/conf.d:/etc/mysql/conf.d
+      - ../../archive/databases:/docker-entrypoint-initdb.d
+  #       - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: myroot
+    #   MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
 
-networks:
-  default:
-    external:
-      name: lamp_default
-# volumes:
-#    mail_sbin:
+    mail:
+      image: mailhog/mailhog
+      ports:
+        - 83:8025
+      restart: always
+  
+    pma:
+      image: phpmyadmin/phpmyadmin
+      ports:
+        - 84:80
+      restart: always
+
+    # node:
+    #   image: node:slim
+    #   depends_on:
+    #     - web
+      

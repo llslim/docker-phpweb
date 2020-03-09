@@ -10,8 +10,8 @@ services:
     volumes:
       - ../../workshop:/var/www/html
       - ../../archive:/var/www/archive
-      # - ./conf/devcerts/dockerapachephp.crt:/etc/ssl/certs/dockerapachephp.crt
-      # - ./conf/devcerts/dockerapachephp.key:/etc/ssl/private/dockerapachephp.key
+      - ./conf/devcerts/dockerapachephp.crt:/etc/ssl/certs/dockerapachephp.crt
+      - ./conf/devcerts/dockerapachephp.key:/etc/ssl/private/dockerapachephp.key
       - ./conf/apache/sites-available:/etc/apache2/sites-available
     links:
       - php
@@ -37,20 +37,27 @@ services:
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
 
-    mail:
-      image: mailhog/mailhog
-      ports:
-        - 83:8025
-      restart: always
-  
-    pma:
-      image: phpmyadmin/phpmyadmin
-      ports:
-        - 84:80
-      restart: always
+  mail:
+    image: mailhog/mailhog
+    ports:
+      - 83:8025
+    restart: always
 
-    # node:
-    #   image: node:slim
-    #   depends_on:
-    #     - web
-      
+  pma:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 84:80
+    restart: always
+
+  node:
+    image: node:slim
+    depends_on:
+      - web
+    volumes:
+      - ../../workshop:/var/www/html
+    build:
+      context: .
+      dockerfile: ThemeTools-build
+
+  
+    

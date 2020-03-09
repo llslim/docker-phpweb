@@ -1,0 +1,4 @@
+FROM node
+
+# Install gulp globally
+RUN npm install -g gulp node-gyp node-sass

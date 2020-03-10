@@ -3,37 +3,54 @@ version: '3'
 services:
   web:
     image: llslim/docker-apache:local
+    depends_on:
+      - db
+      - php
     ports:
       - "80:80"
       - "443:443"
       - "3000:3000"
     volumes:
-      - ../../workshop:/var/www/html
-      - ../../archive:/var/www/archive
-      - ./conf/devcerts/dockerapachephp.crt:/etc/ssl/certs/dockerapachephp.crt
-      - ./conf/devcerts/dockerapachephp.key:/etc/ssl/private/dockerapachephp.key
+      - ../../default:/var/www/html/default
+      - ../web:/var/www/html/web
+      - ../archive:/var/www/archive
+      #- ../../../archive:/var/www/archive
+      - ../../../devcerts/dockerapachephp.crt:/etc/ssl/certs/dockerapachephp.crt
+      - ../../../devcerts/dockerapachephp.key:/etc/ssl/private/dockerapachephp.key
       - ./conf/apache/sites-available:/etc/apache2/sites-available
     links:
       - php
-    
+      - db
+    working_dir: /var/www/html/web/themes/contrib/leaky
+    command: >
+      sh -c "a2ensite 001-web && apachectl -D FOREGROUND"
+      
   php:
     image: llslim/docker-phpfpm:local
+    depends_on:
+      - db
     ports:
       - "9005:9005"
     volumes:
-      - ../../workshop:/var/www/html
+      - ../:/var/www/html/
+      - ../../default:/var/www/html/default
+      - ../archive:/var/www/archive
+      - ./conf/php-fpm.d:/usr/local/etc/php-fpm.d
+    links:
+      - db
+
   db:
     image: mysql:5.7
     ports:
         - 3306:3306
     volumes:
-      - ./conf/mysql/conf.d:/etc/mysql/conf.d
-      - ../../archive/databases:/docker-entrypoint-initdb.d
+      #- ./conf/mysql/conf.d:/etc/mysql/conf.d
+      - ../databases/current:/docker-entrypoint-initdb.d
   #       - db_data:/var/lib/mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: myroot
-    #   MYSQL_DATABASE: mydatabase
+      MYSQL_DATABASE: llslim_db1
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
 
@@ -49,15 +66,16 @@ services:
       - 84:80
     restart: always
 
-  node:
-    image: node:slim
-    depends_on:
-      - web
-    volumes:
-      - ../../workshop:/var/www/html
-    build:
-      context: .
-      dockerfile: ThemeTools-build
+  # node:
+  #   image: node:slim
+  #   depends_on:
+  #     - web
+  #   volumes:
+  #     - ../web:/var/www/html/web
+  #   working_dir: /var/www/html/web/themes/contrib/leaky
+  #   build:
+  #     context: .
+  #     dockerfile: ThemeTools-build
 
   
     

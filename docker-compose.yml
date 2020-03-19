@@ -11,19 +11,19 @@ services:
       - "443:443"
       - "3000:3000"
     volumes:
-      - ../../default:/var/www/html/default
-      - ../web:/var/www/html/web
-      - ../archive:/var/www/archive
-      #- ../../../archive:/var/www/archive
-      - ../../../devcerts/dockerapachephp.crt:/etc/ssl/certs/dockerapachephp.crt
-      - ../../../devcerts/dockerapachephp.key:/etc/ssl/private/dockerapachephp.key
+      #- ../../default:/var/www/html/default
+      - ../../workshop:/var/www/html
+      - ../../archive:/var/www/archive
+      #- ../../archive:/var/www/archive
+      - ../../devcerts/dockerapachephp.crt:/etc/ssl/certs/dockerapachephp.crt
+      - ../../devcerts/dockerapachephp.key:/etc/ssl/private/dockerapachephp.key
       - ./conf/apache/sites-available:/etc/apache2/sites-available
     links:
       - php
       - db
     working_dir: /var/www/html/web/themes/contrib/leaky
     command: >
-      sh -c "a2ensite 001-web && apachectl -D FOREGROUND"
+      sh -c "a2ensite 001-ussaac 006-llslim && apachectl -D FOREGROUND"
       
   php:
     image: llslim/docker-phpfpm:local
@@ -32,9 +32,9 @@ services:
     ports:
       - "9005:9005"
     volumes:
-      - ../:/var/www/html/
-      - ../../default:/var/www/html/default
-      - ../archive:/var/www/archive
+      - ../../workshop:/var/www/html/
+      #- ../../default:/var/www/html/default
+      - ../../archive:/var/www/archive
       - ./conf/php-fpm.d:/usr/local/etc/php-fpm.d
     links:
       - db
@@ -44,13 +44,13 @@ services:
     ports:
         - 3306:3306
     volumes:
-      #- ./conf/mysql/conf.d:/etc/mysql/conf.d
-      - ../databases/current:/docker-entrypoint-initdb.d
-  #       - db_data:/var/lib/mysql
+      - ./conf/mysql/conf.d:/etc/mysql/conf.d
+      #- ../databases/current:/docker-entrypoint-initdb.d
+      #- db_data:/var/lib/mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: myroot
-      MYSQL_DATABASE: llslim_db1
+     # MYSQL_DATABASE: llslim_db1
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
 
